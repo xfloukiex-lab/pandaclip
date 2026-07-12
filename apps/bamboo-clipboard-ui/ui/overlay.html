@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Lens</title>
+<style>
+  :root {
+    --paper: rgba(244, 247, 238, .92);
+    --card: rgba(255, 255, 255, .95);
+    --ink: #1e2418; --ink2: #55603f; --dim: #8b9673; --line: #dde5cc;
+    --bamboo: #6fae3d; --bamboo-d: #4e8a28; --leaf: #8fca5a;
+    --violet: #8a6fd8; --amber: #d99a2b; --blue: #4a7fd6; --red: #d95e5e;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; background: transparent; }
+  body {
+    font: 12px/1.45 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    color: var(--ink); display: flex; flex-direction: column; overflow: hidden;
+  }
+  #panel {
+    flex: 1; display: flex; flex-direction: column; min-height: 0;
+    background: var(--paper); backdrop-filter: blur(14px);
+    border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: 0 10px 34px rgba(40, 60, 20, .25); overflow: hidden;
+  }
+  header {
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+    border-bottom: 1px solid var(--line); -webkit-app-region: drag; cursor: move;
+    background: rgba(255,255,255,.55);
+  }
+  header img { width: 22px; height: 22px; }
+  header b { font-size: 12.5px; letter-spacing: -.2px; }
+  header .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); margin-left: 2px; }
+  header .dot.ok { background: var(--bamboo); }
+  header .btns { margin-left: auto; display: flex; gap: 4px; -webkit-app-region: no-drag; }
+  header button {
+    border: 1px solid var(--line); background: var(--card); color: var(--ink2);
+    border-radius: 8px; font-size: 11px; padding: 2px 8px; cursor: pointer;
+  }
+  header button:hover { background: #fff; color: var(--ink); }
+  #feed { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 10px; }
+  #feed::-webkit-scrollbar { width: 10px; }
+  #feed::-webkit-scrollbar-thumb { background: #cfdab8; border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+  #feed::-webkit-scrollbar-thumb:hover { background: #b7c69a; background-clip: content-box; }
+  .evt {
+    position: relative; background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 6px 9px 6px 12px; margin-bottom: 6px;
+    animation: slide .35s cubic-bezier(.2,.9,.25,1); cursor: pointer;
+  }
+  @keyframes slide { from { opacity: 0; transform: translateY(-8px); } }
+  .evt::before { content: ""; position: absolute; left: 0; top: 7px; bottom: 7px; width: 3px; border-radius: 3px; background: var(--dim); }
+  .evt .meta { display: flex; gap: 6px; align-items: baseline; font-size: 10px; color: var(--dim); }
+  .evt .kind { font-weight: 700; text-transform: uppercase; letter-spacing: .4px; font-size: 9.5px; }
+  .evt .time { margin-left: auto; }
+  .evt pre { white-space: pre-wrap; word-break: break-word; font: 10.5px/1.4 Consolas, monospace; color: var(--ink); max-height: 42px; overflow: hidden; margin-top: 1px; }
+  .evt.past { opacity: .66; animation: none; }
+  .evt.clip::before, .evt.channel_send::before, .evt.snippet_saved::before, .evt.consumed::before, .evt.pinned::before { background: var(--bamboo); }
+  .evt.clip .kind, .evt.channel_send .kind, .evt.snippet_saved .kind, .evt.consumed .kind, .evt.pinned .kind { color: var(--bamboo-d); }
+  .evt.kg_fact::before, .evt.kg_record::before { background: var(--violet); }
+  .evt.kg_fact .kind, .evt.kg_record .kind { color: var(--violet); }
+  .evt.note_edit::before { background: var(--amber); } .evt.note_edit .kind { color: var(--amber); }
+  .evt.commit::before { background: var(--blue); } .evt.commit .kind { color: var(--blue); }
+  .evt.expired::before { background: var(--dim); } .evt.expired { opacity: .6; }
+  #viewer {
+    position: absolute; inset: 0; background: var(--paper); backdrop-filter: blur(14px);
+    display: none; flex-direction: column; border-radius: 16px; z-index: 5;
+  }
+  #viewer.open { display: flex; }
+  #viewer header { cursor: default; -webkit-app-region: no-drag; }
+  #viewer pre { flex: 1; overflow: auto; padding: 12px; white-space: pre-wrap; word-break: break-word; font: 11.5px/1.5 Consolas, monospace; }
+</style>
+</head>
+<body>
+<div id="panel">
+  <header>
+    <img src="assets/panda.png" alt="" />
+    <b>Lens</b>
+    <span class="dot" id="dot"></span>
+    <div class="btns">
+      <button id="openMain" title="Open main window">⤢</button>
+      <button id="hide" title="Hide (tray icon brings it back)">✕</button>
+    </div>
+  </header>
+  <div id="feed"></div>
+  <div id="viewer">
+    <header><b id="v-title"></b><div class="btns"><button id="v-close">✕</button></div></header>
+    <pre id="v-body"></pre>
+  </div>
+</div>
+<script>
+  const feed = document.getElementById("feed");
+  const esc = (s) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  const t = (ms) => new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const KIND = {
+    clip: "clip", channel_send: "hand-off", snippet_saved: "snippet", consumed: "picked up",
+    pinned: "pinned", expired: "expired", kg_fact: "fact", kg_record: "record",
+    note_edit: "note", commit: "commit",
+  };
+
+  document.getElementById("hide").onclick = () => window.lens.overlayHide();
+  document.getElementById("openMain").onclick = () => window.lens.openMain();
+  document.getElementById("v-close").onclick = () => document.getElementById("viewer").classList.remove("open");
+
+  window.lens.onStatus((s) => { document.getElementById("dot").className = "dot" + (s.connected ? " ok" : ""); });
+
+  window.lens.onEvent((ev) => {
+    const div = document.createElement("div");
+    div.className = `evt ${ev.kind}${ev.backfill ? " past" : ""}`;
+    div.innerHTML = `
+      <div class="meta"><span class="kind">${esc(ev.label ?? KIND[ev.kind] ?? ev.kind)}</span>
+        <span>${esc(ev.title ?? "")}</span><span class="time">${t(ev.ts ?? Date.now())}</span></div>
+      ${ev.body ? `<pre>${esc(ev.body)}</pre>` : ""}`;
+    div.onclick = () => {
+      document.getElementById("v-title").textContent = ev.title ?? ev.kind;
+      document.getElementById("v-body").textContent = ev.full ?? ev.body ?? "";
+      document.getElementById("viewer").classList.add("open");
+    };
+    feed.prepend(div);
+    while (feed.children.length > 80) feed.lastChild.remove();
+  });
+</script>
+</body>
+</html>

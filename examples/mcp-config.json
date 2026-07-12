@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "pandaclip": {
+      "command": "node",
+      "args": ["<path-to>/panda-mcp/servers/pandaclip/dist/index.js"]
+    }
+  }
+}
