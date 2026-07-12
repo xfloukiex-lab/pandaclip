@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="apps/bamboo-clipboard-ui/ui/assets/panda.png" alt="PandaClip" width="180">
+</p>
+
 # PandaClip
 
 One local-first MCP server + a desktop activity lens. No daemons, no cloud, SQLite everywhere.
