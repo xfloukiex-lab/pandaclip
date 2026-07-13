@@ -8,7 +8,9 @@ const readline = require("node:readline");
 // packaged app it must run from the asarUnpacked copy — external node cannot
 // read inside app.asar.
 const WATCHER = path.join(__dirname, "watcher.js").replace("app.asar", "app.asar.unpacked");
-const ICON = path.join(__dirname, "..", "ui", "assets", "icon.ico");
+// .ico is Windows-only; Linux/macOS trays want a png
+const ICON = path.join(__dirname, "..", "ui", "assets",
+  process.platform === "win32" ? "icon.ico" : "tray.png");
 
 let win = null;
 let overlay = null;

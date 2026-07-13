@@ -32,12 +32,19 @@ npm install            # from repo root (workspaces)
 npm start --workspace pandaclip
 ```
 
-## Package (Windows installer)
+## Package (installers)
+
+Releases ship installers for **Windows (NSIS), Linux (AppImage/deb), and macOS
+(dmg/zip)** — built by the GitHub Actions release workflow on every version tag.
+All unsigned; expect the usual OS warnings.
+
+To build locally for your own OS:
 
 ```
-npm run dist --workspace pandaclip   # electron-builder → NSIS installer in dist/
+npm run dist --workspace pandaclip   # electron-builder → installer in dist/
 ```
 
 Note: if the in-workspace build fails to find `app-builder-bin`, stage `src/`,
 `ui/`, and `package.json` into a standalone folder outside the monorepo and run
-`npm install --include=optional && npx electron-builder --win nsis` there.
+`npm install --include=optional && npx electron-builder` there (the release
+workflow does exactly this).

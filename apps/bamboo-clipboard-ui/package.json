@@ -1,6 +1,6 @@
 {
   "name": "pandaclip",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Agent activity lens: live desktop feed of clipboard activity, plus optional knowledge-graph, notes, and git commit sources you point at your own stores.",
   "private": true,
   "author": "VektorGeist",
@@ -33,6 +33,22 @@
     "win": {
       "target": "nsis",
       "icon": "ui/assets/icon.ico"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "ui/assets/icon.png",
+      "category": "Utility",
+      "maintainer": "VektorGeist <floukie@vektorgeist.com>"
+    },
+    "mac": {
+      "target": ["dmg", "zip"],
+      "icon": "ui/assets/icon.png",
+      "category": "public.app-category.developer-tools"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "xfloukiex-lab",
+      "repo": "pandaclip"
     }
   }
 }

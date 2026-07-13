@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.4 — 2026-07-12
+
+- Desktop lens ships for **Windows, Linux, and macOS**: GitHub Actions release
+  workflow builds NSIS installer, AppImage + deb, and dmg + zip natively on
+  every tag. All installers unsigned (OS warnings expected).
+- Tray icon is platform-aware (`.ico` on Windows, `.png` elsewhere) — fixes the
+  tray on Linux/macOS.
+
 ## 1.0.3 — 2026-07-12
 
 - Desktop lens now watches PandaClip's **own cache and garden stores out of the

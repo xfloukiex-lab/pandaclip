@@ -1,0 +1,41 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # electron-builder's optional app-builder-bin binary gets pruned inside
+      # npm workspaces — stage the app outside the monorepo and build there.
+      - name: Stage app outside the workspace
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/app"
+          cp -r apps/bamboo-clipboard-ui/src apps/bamboo-clipboard-ui/ui apps/bamboo-clipboard-ui/package.json "$RUNNER_TEMP/app/"
+
+      - name: Build and publish installers
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # our installers are unsigned by policy — never attempt mac codesigning
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: |
+          cd "$RUNNER_TEMP/app"
+          npm install --include=optional --no-audit --no-fund
+          npx electron-builder --publish always
