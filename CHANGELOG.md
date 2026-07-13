@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.3 — 2026-07-12
+
+- Desktop lens now watches PandaClip's **own cache and garden stores out of the
+  box** (like it already watched the clipboard): cache writes and planted facts
+  stream into the feed live. New teal cache accent + "cache writes" counter.
+  Cached values are deliberately not displayed — only namespace/key/size.
+
 ## 1.0.2 — 2026-07-12
 
 - First public release: GitHub + npm (`@panda-mcp/core`, `@panda-mcp/pandaclip`).

@@ -77,6 +77,7 @@
   .stat b { display: block; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .stat span { font-size: 10px; letter-spacing: .8px; text-transform: uppercase; color: var(--dim); }
   .stat.clip b { color: var(--bamboo-d); }
+  .stat.cache b { color: var(--teal); }
   .stat.mem  b { color: var(--amber); }
   .stat.pal  b { color: var(--violet); }
   .stat.code b { color: var(--blue); }
@@ -123,8 +124,9 @@
   .evt.snippet_saved::before { background: var(--bamboo); } .evt.snippet_saved .kind { color: var(--bamboo-d); }
   .evt.consumed::before, .evt.pinned::before { background: var(--leaf); } .evt.consumed .kind, .evt.pinned .kind { color: var(--bamboo-d); }
   .evt.expired::before       { background: var(--dim); } .evt.expired .kind { color: var(--dim); } .evt.expired { opacity: .72; }
-  .evt.kg_fact::before, .evt.kg_record::before { background: var(--violet); }
-  .evt.kg_fact .kind, .evt.kg_record .kind { color: var(--violet); }
+  .evt.kg_fact::before, .evt.kg_record::before, .evt.fact_planted::before { background: var(--violet); }
+  .evt.kg_fact .kind, .evt.kg_record .kind, .evt.fact_planted .kind { color: var(--violet); }
+  .evt.cache_write::before { background: var(--teal); } .evt.cache_write .kind { color: var(--teal); }
   .evt.note_edit::before   { background: var(--amber); } .evt.note_edit .kind { color: var(--amber); }
   .evt.commit::before        { background: var(--blue); } .evt.commit .kind { color: var(--blue); }
   .evt.past { opacity: .68; animation: none; }
@@ -189,13 +191,14 @@
     <img src="assets/panda.png" alt="Bamboo Clipboard panda mascot" />
     <div class="wm">
       <h1>PandaClip</h1>
-      <small>agent activity lens · clips · knowledge · notes · code</small>
+      <small>agent activity lens · clips · cache · knowledge · notes · code</small>
     </div>
   </div>
   <span id="conn" class="bad"><span class="dot"></span><span id="conn-txt">starting watcher…</span></span>
   <button id="overlay-toggle" title="Show/hide the floating hover panel (Ctrl+Alt+L)">🐼 Hover panel</button>
   <div id="stats">
     <div class="stat clip"><b id="st-clip">0</b><span>clips</span></div>
+    <div class="stat cache"><b id="st-cache">0</b><span>cache writes</span></div>
     <div class="stat pal"><b id="st-pal">0</b><span>kg records</span></div>
     <div class="stat mem"><b id="st-mem">0</b><span>notes edited</span></div>
     <div class="stat code"><b id="st-code">0</b><span>commits</span></div>
@@ -208,8 +211,8 @@
       <div class="scroll" id="feed">
         <div id="empty">
           <img class="banner" src="assets/banner.jpg" alt="Bamboo Clipboard — agent activity lens" />
-          <p>Leave me open. The moment an agent clips something, records a fact, edits a note, or commits code — it shows up here.</p>
-          <p class="hint">green = clipboard · purple = knowledge graph · amber = notes · blue = code commits</p>
+          <p>Leave me open. The moment an agent clips something, caches a lookup, plants a fact, edits a note, or commits code — it shows up here.</p>
+          <p class="hint">green = clipboard · teal = cache · purple = knowledge graph · amber = notes · blue = code commits</p>
         </div>
       </div>
     </div>
@@ -240,12 +243,12 @@
   const feed = document.getElementById("feed");
   const esc = (s) => String(s ?? "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
   const t = (ms) => new Date(ms).toLocaleTimeString();
-  const counters = { clip: 0, pal: 0, mem: 0, code: 0 };
+  const counters = { clip: 0, cache: 0, pal: 0, mem: 0, code: 0 };
   const KIND_LABEL = {
     clip: "clip", channel_send: "channel hand-off", snippet_saved: "snippet saved",
     consumed: "picked up", pinned: "pinned", expired: "expired",
-    kg_fact: "new fact learned", kg_record: "kg record",
-    note_edit: "note updated", commit: "code committed",
+    kg_fact: "new fact learned", kg_record: "kg record", fact_planted: "fact planted",
+    cache_write: "cache write", note_edit: "note updated", commit: "code committed",
   };
 
   window.lens.onStatus((s) => {
@@ -279,10 +282,12 @@
   window.lens.onEvent((ev) => {
     if (!ev.backfill) {
       if (ev.src === "clipboard") counters.clip++;
+      else if (ev.src === "cache") counters.cache++;
       else if (ev.src === "kg") counters.pal++;
       else if (ev.src === "notes") counters.mem++;
       else if (ev.src === "code") counters.code++;
       document.getElementById("st-clip").textContent = counters.clip;
+      document.getElementById("st-cache").textContent = counters.cache;
       document.getElementById("st-pal").textContent  = counters.pal;
       document.getElementById("st-mem").textContent  = counters.mem;
       document.getElementById("st-code").textContent = counters.code;

@@ -3,8 +3,8 @@
 // stdout. It NEVER writes to any watched store.
 //
 // Sources are BLANK SLOTS configured in ~/.panda/config.json under "lens".
-// Out of the box only the bamboo-clipboard db is watched; point the other
-// slots at your own stores:
+// Out of the box PandaClip's OWN stores are watched (clipboard, cache, garden
+// knowledge graph); point the other slots at your own stores:
 //
 //   {
 //     "lens": {
@@ -33,6 +33,8 @@ const fs = require("node:fs");
 const HOME = os.homedir();
 const PANDA_HOME = process.env.PANDA_HOME ?? path.join(HOME, ".panda");
 const CLIP_DB = path.join(PANDA_HOME, "clipboard", "clip.db");
+const CACHE_DB = path.join(PANDA_HOME, "cache", "cache.db");
+const GARDEN_DIR = path.join(PANDA_HOME, "garden");
 
 function expand(p) {
   if (typeof p !== "string" || !p.trim()) return null;
@@ -120,6 +122,67 @@ function pollClipboard() {
     for (const ev of events) emit({ type: "event", src: "clipboard", ...ev });
     emit({ type: "clipboard_snapshot", entries });
   } finally { db.close(); }
+}
+
+/* ---------------- cache: PandaClip's own TTL cache ---------------- */
+let cacheMaxTs = null;
+
+function pollCache() {
+  if (!fs.existsSync(CACHE_DB)) return;
+  const db = openRO(CACHE_DB);
+  try {
+    const max = db.prepare("SELECT max(created_at) m FROM entries").get()?.m ?? 0;
+    if (cacheMaxTs !== null && max > cacheMaxTs) {
+      const rows = db
+        .prepare("SELECT namespace, key, content_type, size, created_at FROM entries WHERE created_at > ? ORDER BY created_at LIMIT 20")
+        .all(cacheMaxTs);
+      for (const r of rows) {
+        // value is deliberately NOT shown — cached payloads can be sensitive
+        emit({ type: "event", src: "cache", kind: "cache_write", title: `cache · ${r.namespace}`,
+          body: `${r.key} (${r.content_type}, ${r.size} B)`, ts: Number(r.created_at) });
+      }
+    }
+    cacheMaxTs = max;
+  } finally { db.close(); }
+}
+
+/* ---------------- garden: PandaClip's own knowledge graph ---------------- */
+const gardenMaxTs = new Map(); // db file -> max created_at
+
+function gardenDbs() {
+  if (!fs.existsSync(GARDEN_DIR)) return [];
+  try {
+    return fs.readdirSync(GARDEN_DIR).filter((f) => f.endsWith(".db")).map((f) => path.join(GARDEN_DIR, f));
+  } catch { return []; }
+}
+
+function gardenEvent(r, gardenName) {
+  const where = gardenName === "default" ? r.type : `${gardenName}/${r.type}`;
+  return {
+    kind: "fact_planted", title: `planted · ${where}`,
+    body: String(r.title ?? "").slice(0, 200),
+    full: String(r.content ?? r.title ?? "").slice(0, 4000),
+    tags: [r.stage].filter(Boolean),
+  };
+}
+
+function pollGarden() {
+  for (const file of gardenDbs()) {
+    let db;
+    try { db = openRO(file); } catch { continue; }
+    try {
+      const max = db.prepare("SELECT max(created_at) m FROM nodes").get()?.m ?? 0;
+      const prev = gardenMaxTs.get(file);
+      if (prev !== undefined && max > prev) {
+        const rows = db
+          .prepare("SELECT id, type, title, content, stage, created_at FROM nodes WHERE created_at > ? ORDER BY created_at LIMIT 20")
+          .all(prev);
+        const g = path.basename(file, ".db");
+        for (const r of rows) emit({ type: "event", src: "kg", ts: Number(r.created_at), ...gardenEvent(r, g) });
+      }
+      gardenMaxTs.set(file, max);
+    } finally { db.close(); }
+  }
 }
 
 /* ---------------- knowledge graph: triples (triples + vectors layout) ---------------- */
@@ -272,6 +335,27 @@ function backfill() {
       }
     } finally { db.close(); }
   }
+  // recent garden plantings
+  for (const file of gardenDbs()) {
+    let db;
+    try { db = openRO(file); } catch { continue; }
+    try {
+      const g = path.basename(file, ".db");
+      for (const r of db.prepare("SELECT id, type, title, content, stage, created_at FROM nodes WHERE pruned_at IS NULL ORDER BY created_at DESC LIMIT 8").all()) {
+        items.push({ src: "kg", ts: Number(r.created_at), ...gardenEvent(r, g) });
+      }
+    } finally { db.close(); }
+  }
+  // recent cache writes
+  if (fs.existsSync(CACHE_DB)) {
+    const db = openRO(CACHE_DB);
+    try {
+      for (const r of db.prepare("SELECT namespace, key, content_type, size, created_at FROM entries ORDER BY created_at DESC LIMIT 6").all()) {
+        items.push({ src: "cache", kind: "cache_write", title: `cache · ${r.namespace}`,
+          body: `${r.key} (${r.content_type}, ${r.size} B)`, ts: Number(r.created_at) });
+      }
+    } finally { db.close(); }
+  }
   // recent KG facts
   if (KG_DB && fs.existsSync(KG_DB)) {
     const db = openRO(KG_DB);
@@ -329,14 +413,14 @@ function emitProjects() {
 function safe(fn) { try { fn(); } catch (e) { emit({ type: "warn", src: "watcher", body: String(e.message) }); } }
 
 findRepos();
-safe(pollClipboard); safe(pollKg); safe(pollVectors); safe(pollNotes); safe(pollGit);
+safe(pollClipboard); safe(pollCache); safe(pollGarden); safe(pollKg); safe(pollVectors); safe(pollNotes); safe(pollGit);
 safe(backfill); safe(emitProjects);
-const activeSources = ["clipboard", ...(KG_DB || VECTORS_DB ? ["kg"] : []), ...(NOTES_DIR ? ["notes"] : []), ...(PROJECTS_DIR ? ["code"] : [])];
+const activeSources = ["clipboard", "cache", "kg", ...(NOTES_DIR ? ["notes"] : []), ...(PROJECTS_DIR ? ["code"] : [])];
 emit({ type: "ready", sources: activeSources, startedAt });
 setInterval(() => safe(emitProjects), 60000);
 
 setInterval(() => safe(pollClipboard), 1000);
-setInterval(() => { safe(pollKg); safe(pollVectors); }, 2000);
+setInterval(() => { safe(pollCache); safe(pollGarden); safe(pollKg); safe(pollVectors); }, 2000);
 setInterval(() => safe(pollNotes), 2500);
 setInterval(() => safe(pollGit), 5000);
 setInterval(findRepos, 60000);

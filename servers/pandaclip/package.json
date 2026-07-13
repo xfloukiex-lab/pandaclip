@@ -1,6 +1,6 @@
 {
   "name": "@panda-mcp/pandaclip",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "PandaClip — one local-first MCP server: clipboard history & snippets, TTL cache, file-organizer overlay, and a knowledge graph. SQLite everywhere, no daemons, no network.",
   "license": "Apache-2.0",
   "repository": {

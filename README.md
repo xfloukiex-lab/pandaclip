@@ -47,9 +47,10 @@ up to the live feed. The server stays the sole writer; the lens can only look.
 ## The desktop lens
 
 `apps/bamboo-clipboard-ui/` is an installable Electron app: a live, read-only
-feed of what your agents are doing. Out of the box it watches the clipboard
-store (clips, snippets, channels). Three more sources are **blank slots** you
-can point at your own stores in `~/.panda/config.json`:
+feed of what your agents are doing. Out of the box it watches PandaClip's own
+stores — the clipboard (clips, snippets, channels), cache writes, and garden
+plantings. Three more sources are **blank slots** you can point at your own
+stores in `~/.panda/config.json`:
 
 ```json
 {

@@ -1,6 +1,6 @@
 {
   "name": "pandaclip",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Agent activity lens: live desktop feed of clipboard activity, plus optional knowledge-graph, notes, and git commit sources you point at your own stores.",
   "private": true,
   "author": "VektorGeist",

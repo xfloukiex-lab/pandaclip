@@ -9,7 +9,7 @@
     --card: rgba(255, 255, 255, .95);
     --ink: #1e2418; --ink2: #55603f; --dim: #8b9673; --line: #dde5cc;
     --bamboo: #6fae3d; --bamboo-d: #4e8a28; --leaf: #8fca5a;
-    --violet: #8a6fd8; --amber: #d99a2b; --blue: #4a7fd6; --red: #d95e5e;
+    --violet: #8a6fd8; --amber: #d99a2b; --blue: #4a7fd6; --red: #d95e5e; --teal: #2fa9a0;
   }
   * { box-sizing: border-box; margin: 0; }
   html, body { height: 100%; background: transparent; }
@@ -56,8 +56,9 @@
   .evt.past { opacity: .66; animation: none; }
   .evt.clip::before, .evt.channel_send::before, .evt.snippet_saved::before, .evt.consumed::before, .evt.pinned::before { background: var(--bamboo); }
   .evt.clip .kind, .evt.channel_send .kind, .evt.snippet_saved .kind, .evt.consumed .kind, .evt.pinned .kind { color: var(--bamboo-d); }
-  .evt.kg_fact::before, .evt.kg_record::before { background: var(--violet); }
-  .evt.kg_fact .kind, .evt.kg_record .kind { color: var(--violet); }
+  .evt.kg_fact::before, .evt.kg_record::before, .evt.fact_planted::before { background: var(--violet); }
+  .evt.kg_fact .kind, .evt.kg_record .kind, .evt.fact_planted .kind { color: var(--violet); }
+  .evt.cache_write::before { background: var(--teal); } .evt.cache_write .kind { color: var(--teal); }
   .evt.note_edit::before { background: var(--amber); } .evt.note_edit .kind { color: var(--amber); }
   .evt.commit::before { background: var(--blue); } .evt.commit .kind { color: var(--blue); }
   .evt.expired::before { background: var(--dim); } .evt.expired { opacity: .6; }
@@ -94,7 +95,7 @@
   const KIND = {
     clip: "clip", channel_send: "hand-off", snippet_saved: "snippet", consumed: "picked up",
     pinned: "pinned", expired: "expired", kg_fact: "fact", kg_record: "record",
-    note_edit: "note", commit: "commit",
+    fact_planted: "planted", cache_write: "cache", note_edit: "note", commit: "commit",
   };
 
   document.getElementById("hide").onclick = () => window.lens.overlayHide();
