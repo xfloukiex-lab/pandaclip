@@ -5,6 +5,7 @@
   "private": true,
   "author": "VektorGeist",
   "license": "Apache-2.0",
+  "homepage": "https://github.com/xfloukiex-lab/pandaclip",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
