@@ -122,3 +122,24 @@ See `examples/mcp-config.json`. Point the entry at
 - One server; the four families share only `@panda-mcp/core` (SQLite helpers) and the `~/.panda/` home.
 - Tool names are literal (`cache_get`, not `feed_panda`); panda theming stays in docs.
 - Cache is an optimization, never a source of truth.
+
+---
+
+## About
+
+**PandaClip is built by [VektorGeist LLC](https://vektorgeist.com).**
+
+We build local-first tools for people who run their own AI. PandaClip is the
+working-state toolbox; our agent platform is at **[vektorgeist.com](https://vektorgeist.com)**.
+
+- Website: **[vektorgeist.com](https://vektorgeist.com)**
+- Contact: **floukie@vektorgeist.com**
+- Issues & contributions: open an issue or PR on this repository.
+
+## License
+
+Licensed under the **Apache License 2.0** — see [LICENSE](LICENSE).
+Copyright © 2026 VektorGeist LLC.
+
+*"PandaClip" and the panda mark are trademarks of VektorGeist LLC. The code is
+open under Apache-2.0; the brand and name are reserved.*
