@@ -1,5 +1,5 @@
 {
-  "name": "@panda-mcp/core",
+  "name": "@vektorgeist/panda-core",
   "version": "0.1.0",
   "description": "Shared core for the Panda MCP Suite: SQLite wrapper, config, ids, tool helpers",
   "license": "Apache-2.0",

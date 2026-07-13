@@ -1,4 +1,4 @@
-import { openDb, type DB, newId } from "@panda-mcp/core";
+import { openDb, type DB, newId } from "@vektorgeist/panda-core";
 import { createHash } from "node:crypto";
 
 const MIGRATIONS = [

@@ -1,4 +1,4 @@
-# @panda-mcp/pandaclip
+# @vektorgeist/pandaclip
 
 PandaClip — one local-first MCP server: clipboard history & snippets, TTL
 cache, file-organizer overlay (bamboo), and a knowledge graph (garden).
@@ -7,7 +7,7 @@ cache, file-organizer overlay (bamboo), and a knowledge graph (garden).
 Quick start (Claude Code):
 
 ```sh
-claude mcp add pandaclip -s user -- npx -y @panda-mcp/pandaclip
+claude mcp add pandaclip -s user -- npx -y @vektorgeist/pandaclip
 ```
 
 Data lives under `~/.panda/` (override with `PANDA_HOME`).

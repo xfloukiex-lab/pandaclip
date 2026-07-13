@@ -1,4 +1,4 @@
-import { openDb, type DB, newId } from "@panda-mcp/core";
+import { openDb, type DB, newId } from "@vektorgeist/panda-core";
 
 const MAX_ENTRY_BYTES = 1_000_000;
 

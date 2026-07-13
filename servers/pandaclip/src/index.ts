@@ -11,7 +11,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createRequire } from "node:module";
 import { z } from "zod";
-import { ok, err } from "@panda-mcp/core";
+import { ok, err } from "@vektorgeist/panda-core";
 import { ClipStore } from "./store/clipStore.js";
 import { CacheStore, hashKey } from "./store/cacheStore.js";
 import { BambooStore } from "./store/bambooStore.js";

@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { openDb, type DB, newId } from "@panda-mcp/core";
+import { openDb, type DB, newId } from "@vektorgeist/panda-core";
 
 const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "__pycache__", ".venv", "venv"]);
 const MAX_SCAN_ENTRIES = 20_000;

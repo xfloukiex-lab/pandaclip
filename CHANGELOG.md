@@ -7,6 +7,8 @@
   every tag. All installers unsigned (OS warnings expected).
 - Tray icon is platform-aware (`.ico` on Windows, `.png` elsewhere) — fixes the
   tray on Linux/macOS.
+- First npm release: `@vektorgeist/pandaclip` (server) + `@vektorgeist/panda-core`
+  (shared library), published under the VektorGeist npm organization.
 
 ## 1.0.3 — 2026-07-12
 
@@ -17,7 +19,7 @@
 
 ## 1.0.2 — 2026-07-12
 
-- First public release: GitHub + npm (`@panda-mcp/core`, `@panda-mcp/pandaclip`).
+- First public release on GitHub.
 - Apache-2.0 LICENSE added; npm publish metadata on both packages.
 - README: how it works, the jacobian-lens inspiration, and the magpie-search
   pairing workflow.

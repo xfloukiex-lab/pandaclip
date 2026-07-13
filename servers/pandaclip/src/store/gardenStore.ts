@@ -1,4 +1,4 @@
-import { openDb, type DB, newId } from "@panda-mcp/core";
+import { openDb, type DB, newId } from "@vektorgeist/panda-core";
 
 export const STAGES = ["seed", "shoot", "bamboo"] as const;
 export type Stage = (typeof STAGES)[number];

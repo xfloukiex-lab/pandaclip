@@ -6,7 +6,7 @@
 
 One local-first MCP server + a desktop activity lens. No daemons, no cloud, SQLite everywhere.
 
-`@panda-mcp/pandaclip` is a single server with four tool families:
+`@vektorgeist/pandaclip` is a single server with four tool families:
 
 | Family | Tools | What it does |
 |---|---|---|
@@ -116,11 +116,11 @@ npm test
 ## Use (Claude Code / Desktop)
 
 See `examples/mcp-config.json`. Point the entry at
-`servers/pandaclip/dist/index.js` (or `npx @panda-mcp/pandaclip` once published).
+`servers/pandaclip/dist/index.js` (or `npx @vektorgeist/pandaclip` once published).
 
 ## Design rules
 
-- One server; the four families share only `@panda-mcp/core` (SQLite helpers) and the `~/.panda/` home.
+- One server; the four families share only `@vektorgeist/panda-core` (SQLite helpers) and the `~/.panda/` home.
 - Tool names are literal (`cache_get`, not `feed_panda`); panda theming stays in docs.
 - Cache is an optimization, never a source of truth.
 
