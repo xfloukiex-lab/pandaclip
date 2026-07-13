@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="apps/bamboo-clipboard-ui/ui/assets/panda.png" alt="PandaClip" width="180">
+  <img src="apps/bamboo-clipboard-ui/ui/assets/pandaclip-logo.png" alt="PandaClip" width="320">
 </p>
 
 # PandaClip
